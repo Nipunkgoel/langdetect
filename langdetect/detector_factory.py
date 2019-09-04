@@ -32,7 +32,7 @@ class DetectorFactory(object):
         self.word_lang_prob_map = {}
         self.langlist = []
 
-    def load_profile(self, profile_directory):
+    def load_profile(self, profile_directory,lang_list):
         list_files = os.listdir(profile_directory)
         if not list_files:
             raise LangDetectException(ErrorCode.NeedLoadProfileError, 'Not found profile: ' + profile_directory)
@@ -41,7 +41,9 @@ class DetectorFactory(object):
         for filename in list_files:
             if filename.startswith('.'):
                 continue
-            filename = path.join(profile_directory, filename)
+            if filename in lang_list:
+                filename = path.join(profile_directory, filename)
+                print(filename)
             if not path.isfile(filename):
                 continue
 
@@ -117,21 +119,29 @@ class DetectorFactory(object):
 PROFILES_DIRECTORY = path.join(path.dirname(__file__), 'profiles')
 _factory = None
 
-def init_factory():
+def init_factory(lang_list):
     global _factory
     if _factory is None:
         _factory = DetectorFactory()
-        _factory.load_profile(PROFILES_DIRECTORY)
+        _factory.load_profile(PROFILES_DIRECTORY,lang_list)
 
-def detect(text):
-    init_factory()
+def detect(text, lang_list):
+    init_factory(lang_list)
     detector = _factory.create()
     detector.append(text)
     return detector.detect()
 
 
-def detect_langs(text):
-    init_factory()
+def detect_langs(text,lang_list):
+    init_factory(lang_list)
     detector = _factory.create()
     detector.append(text)
     return detector.get_probabilities()
+
+def detect_lang_limit(text,lang_list):
+    dict={}
+    lang_confidence = detect_langs(text,lang_list)
+    for lang_index in range(len(lang_confidence)):
+        lang=(str(lang_confidence[lang_index]).split(":"))
+        dict[lang[0]] = lang[1]
+    return dict
