@@ -138,7 +138,7 @@ def detect_langs(text,lang_list):
     detector.append(text)
     return detector.get_probabilities()
 
-def detect_lang_limit(text,lang_list):
+def detect_lang_limit_to(text,lang_list):
     dict={}
     lang_confidence = detect_langs(text,lang_list)
     for lang_index in range(len(lang_confidence)):
