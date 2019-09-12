@@ -45,6 +45,13 @@ To find out the probabilities for the top languages:
 [sk:0.572770823327, pl:0.292872522702, cs:0.134356653968]
 ```
 
+To detect the language of the text from a restrictive language list:
+ This will only return the answer from the restrictive language list
+```python
+>>> from langdetect import detect_lang_limit_to
+>>> detect_lang_limit_to("Text",['ca','fr'])
+[['ca', '0.8571393399261249'], ['fr', '0.14285991327291062']]
+```
 **NOTE**
 
 Language detection algorithm is non-deterministic, which means that if you try to run it on a text which is either too short or too ambiguous, you might get different results everytime you run it.
