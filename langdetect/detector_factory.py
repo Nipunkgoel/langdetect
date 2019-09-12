@@ -15,13 +15,10 @@ from .utils.lang_profile import LangProfile
 class DetectorFactory(object):
     '''
     Language Detector Factory Class.
-
     This class manages an initialization and constructions of Detector.
-
     Before using language detection library,
     load profiles with DetectorFactory.load_profile(str)
     and set initialization parameters.
-
     When the language detection,
     construct Detector instance via DetectorFactory.create().
     See also Detector's sample code.
@@ -41,9 +38,12 @@ class DetectorFactory(object):
         for filename in list_files:
             if filename.startswith('.'):
                 continue
-            if filename in lang_list:
+            if lang_list is not None:
+                if filename in lang_list:
+                    filename = path.join(profile_directory, filename)
+                    print(filename)
+            else:
                 filename = path.join(profile_directory, filename)
-                print(filename)
             if not path.isfile(filename):
                 continue
 
@@ -119,29 +119,31 @@ class DetectorFactory(object):
 PROFILES_DIRECTORY = path.join(path.dirname(__file__), 'profiles')
 _factory = None
 
-def init_factory(lang_list):
+def init_factory(lang_list=None):
     global _factory
     if _factory is None:
         _factory = DetectorFactory()
         _factory.load_profile(PROFILES_DIRECTORY,lang_list)
 
-def detect(text, lang_list):
-    init_factory(lang_list)
+def detect(text):
+    init_factory()
     detector = _factory.create()
     detector.append(text)
     return detector.detect()
 
 
-def detect_langs(text,lang_list):
-    init_factory(lang_list)
+def detect_langs(text):
+    init_factory()
     detector = _factory.create()
     detector.append(text)
     return detector.get_probabilities()
 
-def detect_lang_limit_to(text,lang_list):
-    dict={}
-    lang_confidence = detect_langs(text,lang_list)
+def detect_lang_limit_to(text,lang_list): #will return sorted list of list as per confidence
+    answer_list=[]
+    init_factory(lang_list)
+    detector = _factory.create()
+    detector.append(text)
+    lang_confidence =detector.get_probabilities()
     for lang_index in range(len(lang_confidence)):
-        lang=(str(lang_confidence[lang_index]).split(":"))
-        dict[lang[0]] = lang[1]
-    return dict
+        answer_list.append((str(lang_confidence[lang_index]).split(":")))
+    return answer_list #return list of list
